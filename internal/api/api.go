@@ -13,7 +13,14 @@ type Server struct {
 	Node  *raft.Node
 }
 
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+}
+
 func (s *Server) StatusHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
 	json.NewEncoder(w).Encode(map[string]any{
 		"id":   s.Node.ID,
 		"role": s.Node.Role,
@@ -22,6 +29,7 @@ func (s *Server) StatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetKeyHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
 	key := r.URL.Query().Get("key")
 	val, ok := s.Store.Get(key)
 	if !ok {
@@ -32,6 +40,7 @@ func (s *Server) GetKeyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) SetKeyHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
 	var body struct{ Key, Value string }
 	json.NewDecoder(r.Body).Decode(&body)
 	s.Store.Set(body.Key, body.Value)
